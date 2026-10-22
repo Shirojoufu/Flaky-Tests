@@ -113,7 +113,7 @@ def render_markdown(runs, verdicts, rows, gaps, current_index, main_ref=MAIN_REF
     )
     lines.append("")
 
-    lines += _current_section(runs[current_index], verdicts)
+    lines += _current_section(runs, current_index, verdicts)
     lines += _flaky_section(flaky)
     lines += _failing_section(failing)
     lines += _trend_section(rows)
@@ -125,12 +125,13 @@ def render_markdown(runs, verdicts, rows, gaps, current_index, main_ref=MAIN_REF
     return "\n".join(lines)
 
 
-def _current_section(run: dict, verdicts: dict[str, Verdict]) -> list[str]:
+def _current_section(runs: list[dict], index: int, verdicts: dict[str, Verdict]) -> list[str]:
+    run = runs[index]
     lines = ["## This run", "", f"{_where(run)} · commit `{_short(run.get('sha'))}`"]
     if run.get("commit_message"):
         lines[-1] += f" · {_cell(run['commit_message'])}"
     lines.append("")
-    failures = classify_current(run, verdicts)
+    failures = classify_current(runs, index, verdicts)
     if not failures:
         lines += [f"All {sum(1 for t in run.get('tests', {}).values() if t.get('attempts'))} tests passed.", ""]
         return lines

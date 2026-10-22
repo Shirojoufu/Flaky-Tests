@@ -1,8 +1,11 @@
 """Fingerprint the code each test depends on, so outcomes can be compared on identical code.
 
-Two runs of a test with the same fingerprint executed the same test file, conftest files,
-dependency manifests and measured source files. If one passed and the other failed, the
-difference came from somewhere other than the code: the test is flaky.
+A test depends on its test file, the conftest files above it, dependency manifests, and the
+measured source files it executed. Each run records the hash of every measured file and which
+files each test executed. Analysis then fingerprints a test over the *union* of files it
+executed in any run. A failing run that touched an extra module (an error handler, say) is
+still compared with passing runs on the same code, and a change to any of those files still
+counts as new code.
 """
 
 from __future__ import annotations
@@ -26,6 +29,16 @@ DEFAULT_EXTRA = (
 
 PRECISE = "precise"
 TREE = "tree"
+ABSENT = "absent"
+HASH_LENGTH = 12
+
+
+def digest(paths, hash_of) -> str:
+    """Fingerprint ``paths`` given a lookup of each path's content hash (``ABSENT`` if missing)."""
+    sha = hashlib.sha256()
+    for path in sorted(paths):
+        sha.update(f"{path}\0{hash_of(path)}\n".encode())
+    return sha.hexdigest()[:20]
 
 
 class Fingerprinter:
@@ -33,7 +46,7 @@ class Fingerprinter:
         self.root = root
         self.tree = tree
         self.mode = mode
-        self._hashes: dict[str, str] = {}
+        self.hashes: dict[str, str] = {}
         self._extra = sorted(
             {
                 path.relative_to(root).as_posix()
@@ -43,24 +56,27 @@ class Fingerprinter:
             }
         )
 
-    def for_test(self, dependencies: dict | None) -> tuple[str, str]:
-        """Return ``(fingerprint, kind)`` for a test given its entry from ``dependencies_by_test``.
+    def files_for(self, dependencies: dict | None) -> list[str] | None:
+        """Files a test depends on in this run, given its entry from ``dependencies_by_test``.
 
-        Without per-test coverage the whole git tree is used, so any change counts as new code.
+        ``None`` without per-test coverage (or in tree mode): the whole git tree stands in.
         """
         if self.mode == TREE or not dependencies:
-            return f"tree:{self.tree}", TREE
+            return None
         test_file = dependencies["file"]
-        files = {test_file, *dependencies["deps"], *self._conftests(test_file), *self._extra}
-        digest = hashlib.sha256()
-        for rel in sorted(files):
-            digest.update(f"{rel}\0{self._hash(rel)}\n".encode())
-        return digest.hexdigest()[:20], PRECISE
+        return sorted({test_file, *dependencies["deps"], *self._conftests(test_file), *self._extra})
 
-    def _hash(self, rel: str) -> str:
-        if rel not in self._hashes:
-            self._hashes[rel] = blob_hash(self.root / rel)
-        return self._hashes[rel]
+    def for_test(self, files: list[str] | None) -> tuple[str, str]:
+        """``(fingerprint, kind)`` of a test in this run alone."""
+        if files is None:
+            return f"tree:{self.tree}", TREE
+        return digest(files, self.hash), PRECISE
+
+    def hash(self, rel: str) -> str:
+        if rel not in self.hashes:
+            full = blob_hash(self.root / rel)
+            self.hashes[rel] = ABSENT if full == "missing" else full[:HASH_LENGTH]
+        return self.hashes[rel]
 
     def _conftests(self, test_file: str) -> list[str]:
         parent = PurePosixPath(test_file).parent

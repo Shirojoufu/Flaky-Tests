@@ -85,13 +85,42 @@ def test_pass_on_retry_within_one_run_is_flaky():
     assert verdict.status == FLAKY
     assert verdict.retry_flakes == 1
     assert verdict.previous_code_seen_in is None
-    assert classify_current(runs[0], {"t": verdict})[0]["kind"] == "passed-on-retry"
+    assert classify_current(runs, 0, {"t": verdict})[0]["kind"] == "passed-on-retry"
 
 
 def test_skipped_attempts_are_ignored():
     runs = [run(0, {"t": ("skipped", "a")}), run(1, {"t": ("passed", "a")})]
 
     assert analyze(runs)["t"].observations == 1
+
+
+def precise_run(index, outcome, deps, files):
+    record = run(index, {})
+    paths = sorted(files)
+    record["files"] = [[path, files[path]] for path in paths]
+    record["tests"]["t"] = {"attempts": [outcome], "fingerprint": f"per-run-{index}",
+                            "deps": [paths.index(path) for path in deps]}
+    return record
+
+
+def test_failure_path_touching_extra_files_is_still_same_code():
+    files = {"app.py": "a1", "errors.py": "e1", "test_app.py": "t1"}
+    runs = [
+        precise_run(0, "passed", ["app.py", "test_app.py"], files),
+        precise_run(1, "failed", ["app.py", "errors.py", "test_app.py"], files),  # error path ran errors.py
+    ]
+
+    assert analyze(runs)["t"].status == FLAKY
+
+
+def test_change_to_a_file_only_the_failure_path_runs_is_new_code():
+    runs = [
+        precise_run(0, "passed", ["app.py", "test_app.py"], {"app.py": "a1", "errors.py": "e1", "test_app.py": "t1"}),
+        precise_run(1, "failed", ["app.py", "errors.py", "test_app.py"],
+                    {"app.py": "a1", "errors.py": "e2", "test_app.py": "t1"}),
+    ]
+
+    assert analyze(runs)["t"].status == FAILING
 
 
 def test_scheduled_runs_of_main_count_as_main():
@@ -128,7 +157,7 @@ def test_classify_current_known_flaky_and_real_failures():
     ]
     verdicts = analyze(runs)
 
-    kinds = {item["key"]: item["kind"] for item in classify_current(runs[1], verdicts)}
+    kinds = {item["key"]: item["kind"] for item in classify_current(runs, 1, verdicts)}
 
     assert kinds == {"flaky": "known-flaky", "real": "failure"}
 

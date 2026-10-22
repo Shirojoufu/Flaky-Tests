@@ -80,16 +80,28 @@ def build_record(
     raw = coverage_data.load(coverage) if coverage else None
     dependencies = coverage_data.dependencies_by_test(raw) if raw else {}
     fingerprinter = Fingerprinter(root, tree, extra, mode)
+    test_files = {key: fingerprinter.files_for(dependencies.get(key)) for key in attempts}
+
+    # Hash every measured file, not just the ones executed this run: analysis fingerprints each
+    # test over the files it executed in *any* run, so it needs their hashes here too.
+    universe = {path.replace("\\", "/") for path in (raw or {}).get("files", {})}
+    for files in test_files.values():
+        universe.update(files or ())
+    paths = sorted(universe)
+    index = {path: i for i, path in enumerate(paths)}
 
     tests = {}
     for key, results in sorted(attempts.items()):
-        fingerprint, kind = fingerprinter.for_test(dependencies.get(key))
+        files = test_files[key]
+        fingerprint, kind = fingerprinter.for_test(files)
         entry = {
             "attempts": [result.outcome for result in results],
             "duration": round(results[0].duration, 4),
             "fingerprint": fingerprint,
             "fingerprint_kind": kind,
         }
+        if files is not None:
+            entry["deps"] = [index[path] for path in files]
         message = next((r.message for r in results if r.outcome in FAILURES and r.message), "")
         if message:
             entry["message"] = message
@@ -104,6 +116,7 @@ def build_record(
         "base_sha": base,
         "commit_message": try_git(["log", "-1", "--format=%s"], root) or "",
         **context,
+        "files": [[path, fingerprinter.hash(path)] for path in paths],
         "tests": tests,
     }
     if raw:

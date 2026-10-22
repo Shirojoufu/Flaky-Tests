@@ -137,7 +137,7 @@ def _analyze(args: argparse.Namespace) -> int:
         with args.summary_file.open("a", encoding="utf-8") as handle:
             handle.write(markdown + "\n")
     if args.annotate:
-        for item in classify_current(runs[current_index], verdicts):
+        for item in classify_current(runs, current_index, verdicts):
             if item["kind"] != "failure":
                 print(f"::warning title=Flaky test ({item['severity'] or 'new'})::{item['key']} "
                       f"failed on code where it also passes (attempts: {', '.join(item['attempts'])})")

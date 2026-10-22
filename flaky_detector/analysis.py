@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from .fingerprint import ABSENT, digest
 from .junit import FAILURES, PASSED
 
 SEVERITIES = ("critical", "high", "medium", "low")
@@ -47,6 +48,7 @@ class Verdict:
     main_failures: int = 0
     active: bool = False
     flaky_fingerprints: list[str] = field(default_factory=list)
+    flaky_runs: list[int] = field(default_factory=list)  # runs of this test on flaky code states
     first_flaky_failure: dict | None = None
     # First run on the code state that turned out flaky, and the last run on the code before it.
     introduced_in: dict | None = None
@@ -78,14 +80,37 @@ def run_ref(runs: list[dict], index: int) -> dict:
     return {"index": index, **{name: run.get(name) for name in _REF_FIELDS}}
 
 
+def fingerprints(runs: list[dict]) -> dict[tuple[int, str], str]:
+    """Each test's fingerprint in each run, over every file the test executed in any run.
+
+    Tests without recorded dependencies (tree mode, scanned logs) keep their stored fingerprint.
+    """
+    files = [dict(map(tuple, run.get("files", []))) for run in runs]
+    paths = [[path for path, _ in run.get("files", [])] for run in runs]
+    union: dict[str, set[str]] = {}
+    for index, run in enumerate(runs):
+        for key, test in run.get("tests", {}).items():
+            if "deps" in test:
+                union.setdefault(key, set()).update(paths[index][i] for i in test["deps"])
+    result = {}
+    for index, run in enumerate(runs):
+        for key, test in run.get("tests", {}).items():
+            if "deps" in test:
+                result[(index, key)] = digest(union[key], lambda path: files[index].get(path, ABSENT))
+            else:
+                result[(index, key)] = test.get("fingerprint", "")
+    return result
+
+
 def analyze(runs: list[dict], window: int = 20, main_ref: str = MAIN_REF) -> dict[str, Verdict]:
+    fingerprint = fingerprints(runs)
     observations: dict[str, list[Observation]] = {}
     for index, run in enumerate(runs):
         for key, test in run.get("tests", {}).items():
             for attempt, outcome in enumerate(test.get("attempts", [])):
                 if outcome == PASSED or outcome in FAILURES:
                     observations.setdefault(key, []).append(
-                        Observation(index, outcome, test.get("fingerprint", ""), attempt)
+                        Observation(index, outcome, fingerprint[(index, key)], attempt)
                     )
     verdicts = [_judge(key, obs, runs, window, main_ref) for key, obs in observations.items()]
     return {verdict.key: verdict for verdict in sorted(verdicts, key=lambda v: v.sort_key)}
@@ -130,6 +155,7 @@ def _judge(key: str, obs: list[Observation], runs: list[dict], window: int, main
 
     verdict.status = FLAKY
     verdict.flaky_fingerprints = flaky_fingerprints
+    verdict.flaky_runs = sorted({o.run_index for o in flaky_obs})
     verdict.flaky_observations = len(flaky_obs)
     verdict.flaky_failures = len(flaky_failures)
     verdict.failure_rate = round(len(flaky_failures) / len(flaky_obs), 4)
@@ -168,24 +194,24 @@ def _flips(group: list[Observation]) -> int:
     return sum(1 for a, b in zip(group, group[1:]) if a.failed != b.failed)
 
 
-def is_flaky_failure(verdict: Verdict | None, test: dict) -> bool:
+def is_flaky_failure(verdict: Verdict | None, test: dict, run_index: int) -> bool:
     attempts = test.get("attempts") or []
     if any(a == PASSED for a in attempts[1:]):
         return True
-    return bool(verdict and test.get("fingerprint") in verdict.flaky_fingerprints)
+    return bool(verdict and run_index in verdict.flaky_runs)
 
 
-def classify_current(run: dict, verdicts: dict[str, Verdict]) -> list[dict]:
-    """Explain each test that failed its first attempt in ``run``."""
+def classify_current(runs: list[dict], index: int, verdicts: dict[str, Verdict]) -> list[dict]:
+    """Explain each test that failed its first attempt in ``runs[index]``."""
     out = []
-    for key, test in sorted(run.get("tests", {}).items()):
+    for key, test in sorted(runs[index].get("tests", {}).items()):
         attempts = test.get("attempts") or []
         if not attempts or attempts[0] not in FAILURES:
             continue
         verdict = verdicts.get(key)
         if any(a == PASSED for a in attempts[1:]):
             kind = "passed-on-retry"
-        elif is_flaky_failure(verdict, test):
+        elif is_flaky_failure(verdict, test, index):
             kind = "known-flaky"
         else:
             kind = "failure"
@@ -215,7 +241,7 @@ def run_rows(runs: list[dict], verdicts: dict[str, Verdict], main_ref: str = MAI
             if attempts[0] in FAILURES:
                 counts["failed"] += 1
                 counts["failed_after_retry"] += attempts[-1] in FAILURES
-                counts["flaky_failures"] += is_flaky_failure(verdicts.get(key), test)
+                counts["flaky_failures"] += is_flaky_failure(verdicts.get(key), test, index)
             else:
                 counts["passed"] += 1
         coverage = run.get("coverage") or {}
