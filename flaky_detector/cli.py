@@ -49,6 +49,9 @@ def main(argv: list[str] | None = None) -> int:
                              f"({', '.join(DEFAULT_EXTRA)}); e.g. code run in subprocesses")
     ingest.add_argument("--fingerprint-mode", choices=[PRECISE, TREE], default=PRECISE,
                         help="precise: files each test executed; tree: the whole commit tree")
+    ingest.add_argument("--environment",
+                        help="matrix environment of this run, e.g. py3.12-ubuntu. Tests are judged per "
+                             "environment, so a failure only one environment has is not mistaken for a flake")
 
     report = commands.add_parser("analyze", help="detect flaky tests and write reports")
     report.add_argument("--store", type=Path, required=True, help="directory of run records")
@@ -114,6 +117,7 @@ def _ingest(args: argparse.Namespace) -> int:
         exclude=tuple(args.exclude),
         extra=(*DEFAULT_EXTRA, *args.fingerprint_extra),
         mode=args.fingerprint_mode,
+        environment=args.environment,
         now=args.timestamp,
     )
     print(save_run(record, args.store))

@@ -122,7 +122,7 @@ def scan(
                 if not _wanted(job, job_pattern, step_pattern):
                     continue
                 run_id = f"{run['id']}-{_slug(job['name'])}"
-                if (run_id, attempt) in known:
+                if (run_id, attempt, "") in known:
                     continue
                 try:
                     log = api.text(f"repos/{repo}/actions/jobs/{job['id']}/logs")

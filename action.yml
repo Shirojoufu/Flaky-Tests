@@ -15,6 +15,12 @@ inputs:
   coverage:
     description: coverage.py JSON report made with `--cov-context=test` and `show_contexts = true`.
     default: ""
+  environment:
+    description: >
+      Name of this job's matrix environment, built from the matrix values (e.g. py3.12-ubuntu). Required
+      when the action runs in more than one job of a workflow run: each environment is recorded and
+      judged separately, so a failure only one environment has isn't mistaken for a flake.
+    default: ""
   fingerprint-extra:
     description: >
       Space-separated globs of files every test depends on, beyond the defaults (lockfiles,
@@ -70,6 +76,7 @@ runs:
         RETRY_JUNIT: ${{ inputs.retry-junit }}
         COVERAGE: ${{ inputs.coverage }}
         FINGERPRINT_EXTRA: ${{ inputs.fingerprint-extra }}
+        ENVIRONMENT: ${{ inputs.environment }}
         BRANCH: ${{ inputs.history-branch }}
         MAIN_REF: ${{ inputs.main-ref }}
         THRESHOLD: ${{ inputs.coverage-threshold }}
@@ -81,6 +88,7 @@ runs:
         args=(--junit "$JUNIT" --store "$store")
         if [ -n "$RETRY_JUNIT" ]; then args+=(--rerun "$RETRY_JUNIT"); fi
         if [ -n "$COVERAGE" ]; then args+=(--coverage "$COVERAGE"); fi
+        if [ -n "$ENVIRONMENT" ]; then args+=(--environment "$ENVIRONMENT"); fi
         if [ -n "$FINGERPRINT_EXTRA" ]; then
           read -ra extra <<< "$FINGERPRINT_EXTRA"
           args+=(--fingerprint-extra "${extra[@]}")
@@ -96,7 +104,7 @@ runs:
     - name: Upload report and graph data
       uses: actions/upload-artifact@v7
       with:
-        name: flaky-report-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+        name: flaky-report-${{ github.job }}${{ inputs.environment && format('-{0}', inputs.environment) || '' }}-${{ github.run_id }}-${{ github.run_attempt }}
         path: ${{ steps.record.outputs.report-dir }}
 
     - name: Save run to history branch

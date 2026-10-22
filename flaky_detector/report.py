@@ -6,7 +6,7 @@ import csv
 import json
 from pathlib import Path
 
-from .analysis import FAILING, FLAKY, HEALTHY, MAIN_REF, SEVERITIES, Verdict, classify_current, is_main_push, run_rows
+from .analysis import FAILING, FIXED, FLAKY, HEALTHY, MAIN_REF, SEVERITIES, Verdict, classify_current, is_main_push, run_rows
 
 SEVERITY_ICON = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "⚪"}
 TABLE_LIMIT = 50
@@ -100,6 +100,7 @@ def coverage_gaps(runs: list[dict], current_index: int, threshold: float, main_r
 def render_markdown(runs, verdicts, rows, gaps, current_index, main_ref=MAIN_REF) -> str:
     flaky = [v for v in verdicts.values() if v.status == FLAKY]
     failing = [v for v in verdicts.values() if v.status == FAILING]
+    fixed = [v for v in verdicts.values() if v.status == FIXED]
     by_severity = {s: sum(1 for v in flaky if v.severity == s) for s in SEVERITIES}
     main_runs = sum(1 for r in runs if is_main_push(r, main_ref))
     pr_runs = sum(1 for r in runs if r.get("event") == "pull_request")
@@ -109,13 +110,14 @@ def render_markdown(runs, verdicts, rows, gaps, current_index, main_ref=MAIN_REF
         f"**Runs analysed:** {len(runs)} ({main_runs} on main, {pr_runs} from pull requests) · "
         f"**Tests tracked:** {len(verdicts)} · **Flaky:** {len(flaky)} "
         f"({', '.join(f'{SEVERITY_ICON[s]} {n} {s}' for s, n in by_severity.items())}) · "
-        f"**Consistently failing:** {len(failing)}"
+        f"**Consistently failing:** {len(failing)} · **Fixed flakes:** {len(fixed)}"
     )
     lines.append("")
 
     lines += _current_section(runs, current_index, verdicts)
     lines += _flaky_section(flaky)
     lines += _failing_section(failing)
+    lines += _fixed_section(fixed)
     lines += _trend_section(rows)
     lines += _coverage_section(gaps)
 
@@ -190,6 +192,25 @@ def _failing_section(failing: list[Verdict]) -> list[str]:
     ]
     for v in failing[:TABLE_LIMIT]:
         lines.append(f"| `{_cell(v.key)}` | {_ref(v.failing_since)} | {v.failures} |")
+    lines.append("")
+    return lines
+
+
+def _fixed_section(fixed: list[Verdict]) -> list[str]:
+    if not fixed:
+        return []
+    lines = [
+        "## Fixed flakes",
+        "",
+        "Flaky on earlier code, and the code they run now has passed often enough that the flake "
+        "would very likely have shown up again (95% confidence at the old failure rate).",
+        "",
+        "| Test | Fixed in | Passes since | Old fail rate | Last flaky failure |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for v in fixed[:TABLE_LIMIT]:
+        lines.append(f"| `{_cell(v.key)}` | {_ref(v.fixed_in)} | {v.passes_since_fix} | {v.failure_rate:.0%} "
+                     f"| {_ref(v.last_failure)} |")
     lines.append("")
     return lines
 

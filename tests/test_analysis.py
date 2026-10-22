@@ -1,12 +1,15 @@
 from flaky_detector.analysis import (
     FAILING,
+    FIXED,
     FLAKY,
     HEALTHY,
     analyze,
     classify_current,
+    passes_to_trust_fix,
     run_rows,
     severity,
 )
+from flaky_detector.store import load_runs, save_run
 
 
 def run(index, tests, *, event="pull_request", ref="refs/pull/1/merge", pr=1, coverage=None):
@@ -121,6 +124,67 @@ def test_change_to_a_file_only_the_failure_path_runs_is_new_code():
     ]
 
     assert analyze(runs)["t"].status == FAILING
+
+
+def test_environment_specific_failure_is_not_flaky():
+    runs = []
+    for i in range(3):
+        for env, outcome in (("utc", "passed"), ("pst", "failed")):
+            record = run(i, {"t": (outcome, "same-code")})
+            record["environment"] = env
+            runs.append(record)
+
+    verdicts = analyze(runs)
+
+    assert verdicts["t [utc]"].status == HEALTHY
+    assert verdicts["t [pst]"].status == FAILING
+    assert classify_current(runs, len(runs) - 1, verdicts)[0]["key"] == "t [pst]"
+
+
+def test_matrix_environments_count_as_one_run_for_recency():
+    runs = []
+    for i in range(12):
+        for env in ("a", "b"):
+            outcome = "failed" if i == 0 and env == "a" else "passed"
+            record = run(i, {"t": (outcome, "x")})
+            record["environment"] = env
+            runs.append(record)
+
+    assert analyze(runs, window=11)["t [a]"].active is False
+    assert analyze(runs, window=12)["t [a]"].active is True
+
+
+def test_flake_fixed_by_a_code_change():
+    runs = [run(i, {"t": ("failed" if i % 2 else "passed", "racy")}) for i in range(6)]  # 50% fail rate
+    runs += [run(i, {"t": ("passed", "with-lock")}) for i in range(6, 11)]
+
+    verdict = analyze(runs)["t"]
+
+    assert verdict.status == FIXED
+    assert verdict.fixed_in["index"] == 6
+    assert verdict.passes_since_fix == 5
+    assert verdict.severity is None
+
+
+def test_fix_needs_enough_passes_for_the_old_failure_rate():
+    runs = [run(0, {"t": ("failed", "racy")})] + [run(i, {"t": ("passed", "racy")}) for i in range(1, 10)]
+    runs += [run(i, {"t": ("passed", "with-lock")}) for i in range(10, 20)]  # 10% rate needs 29 passes
+
+    verdict = analyze(runs)["t"]
+
+    assert verdict.status == FLAKY
+    assert verdict.passes_since_fix == 10
+    assert passes_to_trust_fix(0.1) == 29
+    assert passes_to_trust_fix(0.5) == 5
+    assert passes_to_trust_fix(0.9) == 3
+
+
+def test_matrix_records_of_one_run_are_stored_side_by_side(tmp_path):
+    for env in ("py3.11", "py3.12"):
+        record = run(0, {"t": ("passed", "x")}) | {"environment": env, "schema": 1}
+        save_run(record, tmp_path)
+
+    assert [r["environment"] for r in load_runs(tmp_path)] == ["py3.11", "py3.12"]
 
 
 def test_scheduled_runs_of_main_count_as_main():

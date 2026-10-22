@@ -1,4 +1,4 @@
-"""Read and write run records: one JSON file per CI run attempt."""
+"""Read and write run records: one JSON file per CI run attempt (per environment, in a matrix)."""
 
 from __future__ import annotations
 
@@ -12,8 +12,10 @@ SCHEMA_VERSION = 1
 
 def run_filename(record: dict) -> str:
     stamp = record["timestamp"].replace("-", "").replace(":", "")
-    name = f"{stamp}-{record['run_id']}-{record['run_attempt']}.json"
-    return re.sub(r"[^A-Za-z0-9._-]", "_", name)
+    name = f"{stamp}-{record['run_id']}-{record['run_attempt']}"
+    if record.get("environment"):
+        name += f"-{record['environment']}"
+    return re.sub(r"[^A-Za-z0-9._-]", "_", name) + ".json"
 
 
 def save_run(record: dict, store: Path) -> Path:
@@ -27,13 +29,14 @@ def load_run(path: Path) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def run_identity(record: dict) -> tuple[str, int]:
-    return str(record.get("run_id")), int(record.get("run_attempt", 1))
+def run_identity(record: dict) -> tuple[str, int, str]:
+    """A CI run attempt, plus the matrix environment when there is one."""
+    return str(record.get("run_id")), int(record.get("run_attempt", 1)), record.get("environment") or ""
 
 
 def load_runs(store: Path) -> list[dict]:
     """All runs in the store, oldest first. A re-ingested run attempt replaces the earlier copy."""
-    runs: dict[tuple[str, int], dict] = {}
+    runs: dict[tuple[str, int, str], dict] = {}
     for path in sorted(Path(store).glob("*.json")):
         try:
             record = load_run(path)

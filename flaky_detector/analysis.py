@@ -1,11 +1,13 @@
-"""Judge every test across the run history: flaky, consistently failing, or healthy.
+"""Judge every test across the run history: flaky, fixed, consistently failing, or healthy.
 
 A test is flaky when it both passed and failed with the same fingerprint, i.e. on
-identical code. A retry inside one run is the strongest case of this.
+identical code. A retry inside one run is the strongest case of this. In a CI matrix each
+environment is judged separately, so a failure only one environment has is not a flake.
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import asdict, dataclass, field
 
 from .fingerprint import ABSENT, digest
@@ -14,10 +16,21 @@ from .junit import FAILURES, PASSED
 SEVERITIES = ("critical", "high", "medium", "low")
 MAIN_REF = "refs/heads/main"
 FLAKY = "flaky"
+FIXED = "fixed"
 FAILING = "failing"
 HEALTHY = "healthy"
+# A flake counts as fixed once its new code has passed so often that, were it still failing at
+# its old rate, a streak that long would happen less than 5% of the time.
+FIXED_CONFIDENCE = 0.95
+MIN_PASSES_TO_FIX = 3
 
-_REF_FIELDS = ("sha", "timestamp", "event", "ref", "pr_number", "merged_pr", "run_id", "run_attempt")
+_REF_FIELDS = ("sha", "timestamp", "event", "ref", "pr_number", "merged_pr", "run_id", "run_attempt",
+               "environment")
+
+
+def verdict_key(key: str, environment: str | None) -> str:
+    """The name a test is judged under: its key, plus the matrix environment if there is one."""
+    return f"{key} [{environment}]" if environment else key
 
 
 @dataclass
@@ -54,6 +67,8 @@ class Verdict:
     introduced_in: dict | None = None
     previous_code_seen_in: dict | None = None
     failing_since: dict | None = None
+    fixed_in: dict | None = None  # first run on the code that stopped the flake
+    passes_since_fix: int = 0
     last_failure: dict | None = None
     last_seen: dict | None = None
     timeline: list[list] = field(default_factory=list)
@@ -63,7 +78,7 @@ class Verdict:
         if self.severity:
             rank = SEVERITIES.index(self.severity)
         else:
-            rank = len(SEVERITIES) + (0 if self.status == FAILING else 1)
+            rank = len(SEVERITIES) + (FAILING, FIXED, HEALTHY).index(self.status)
         return rank, -self.failure_rate, -self.failures, self.key
 
     def to_dict(self) -> dict:
@@ -103,20 +118,27 @@ def fingerprints(runs: list[dict]) -> dict[tuple[int, str], str]:
 
 
 def analyze(runs: list[dict], window: int = 20, main_ref: str = MAIN_REF) -> dict[str, Verdict]:
+    """Verdicts keyed by ``verdict_key``. ``window`` is how many recent CI runs count as active."""
     fingerprint = fingerprints(runs)
     observations: dict[str, list[Observation]] = {}
     for index, run in enumerate(runs):
         for key, test in run.get("tests", {}).items():
             for attempt, outcome in enumerate(test.get("attempts", [])):
                 if outcome == PASSED or outcome in FAILURES:
-                    observations.setdefault(key, []).append(
+                    observations.setdefault(verdict_key(key, run.get("environment")), []).append(
                         Observation(index, outcome, fingerprint[(index, key)], attempt)
                     )
-    verdicts = [_judge(key, obs, runs, window, main_ref) for key, obs in observations.items()]
+    # Matrix environments of one CI run are separate records but one run for recency.
+    ordinal, seen = [], {}
+    for run in runs:
+        ordinal.append(seen.setdefault((str(run.get("run_id")), run.get("run_attempt", 1)), len(seen)))
+    recent_from = len(seen) - window
+    verdicts = [_judge(key, obs, runs, ordinal, recent_from, main_ref) for key, obs in observations.items()]
     return {verdict.key: verdict for verdict in sorted(verdicts, key=lambda v: v.sort_key)}
 
 
-def _judge(key: str, obs: list[Observation], runs: list[dict], window: int, main_ref: str) -> Verdict:
+def _judge(key: str, obs: list[Observation], runs: list[dict], ordinal: list[int], recent_from: int,
+           main_ref: str) -> Verdict:
     by_fingerprint: dict[str, list[Observation]] = {}
     by_run: dict[int, list[Observation]] = {}
     for o in obs:
@@ -161,12 +183,28 @@ def _judge(key: str, obs: list[Observation], runs: list[dict], window: int, main
     verdict.failure_rate = round(len(flaky_failures) / len(flaky_obs), 4)
     verdict.flips = sum(_flips(by_fingerprint[fp]) for fp in flaky_fingerprints)
     verdict.main_failures = len(main_failure_runs)
-    verdict.active = flaky_failures[-1].run_index >= len(runs) - window
+    verdict.active = ordinal[flaky_failures[-1].run_index] >= recent_from
     verdict.first_flaky_failure = run_ref(runs, flaky_failures[0].run_index)
     verdict.introduced_in = run_ref(runs, introduced)
     verdict.previous_code_seen_in = run_ref(runs, previous.run_index) if previous else None
+
+    current = by_fingerprint[obs[-1].fingerprint]
+    if obs[-1].fingerprint not in flaky_set and not any(o.failed for o in current):
+        verdict.passes_since_fix = len(current)
+        if len(current) >= passes_to_trust_fix(verdict.failure_rate):
+            verdict.status = FIXED
+            verdict.fixed_in = run_ref(runs, current[0].run_index)
+            return verdict
     verdict.severity = severity(verdict.failure_rate, verdict.flaky_failures, verdict.main_failures, verdict.active)
     return verdict
+
+
+def passes_to_trust_fix(failure_rate: float) -> int:
+    """Consecutive passes on new code needed before a flake with this failure rate counts as fixed."""
+    if failure_rate >= 1:
+        return MIN_PASSES_TO_FIX
+    needed = math.log(1 - FIXED_CONFIDENCE) / math.log(1 - failure_rate)
+    return max(MIN_PASSES_TO_FIX, math.ceil(needed))
 
 
 def severity(rate: float, failures: int, main_failures: int, active: bool) -> str:
@@ -204,11 +242,12 @@ def is_flaky_failure(verdict: Verdict | None, test: dict, run_index: int) -> boo
 def classify_current(runs: list[dict], index: int, verdicts: dict[str, Verdict]) -> list[dict]:
     """Explain each test that failed its first attempt in ``runs[index]``."""
     out = []
+    environment = runs[index].get("environment")
     for key, test in sorted(runs[index].get("tests", {}).items()):
         attempts = test.get("attempts") or []
         if not attempts or attempts[0] not in FAILURES:
             continue
-        verdict = verdicts.get(key)
+        verdict = verdicts.get(verdict_key(key, environment))
         if any(a == PASSED for a in attempts[1:]):
             kind = "passed-on-retry"
         elif is_flaky_failure(verdict, test, index):
@@ -216,7 +255,7 @@ def classify_current(runs: list[dict], index: int, verdicts: dict[str, Verdict])
         else:
             kind = "failure"
         out.append({
-            "key": key,
+            "key": verdict_key(key, environment),
             "kind": kind,
             "attempts": attempts,
             "severity": verdict.severity if verdict else None,
@@ -241,7 +280,8 @@ def run_rows(runs: list[dict], verdicts: dict[str, Verdict], main_ref: str = MAI
             if attempts[0] in FAILURES:
                 counts["failed"] += 1
                 counts["failed_after_retry"] += attempts[-1] in FAILURES
-                counts["flaky_failures"] += is_flaky_failure(verdicts.get(key), test, index)
+                verdict = verdicts.get(verdict_key(key, run.get("environment")))
+                counts["flaky_failures"] += is_flaky_failure(verdict, test, index)
             else:
                 counts["passed"] += 1
         coverage = run.get("coverage") or {}

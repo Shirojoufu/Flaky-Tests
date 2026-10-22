@@ -60,6 +60,7 @@ def build_record(
     exclude=coverage_data.DEFAULT_EXCLUDE,
     extra=DEFAULT_EXTRA,
     mode: str = PRECISE,
+    environment: str | None = None,
     now: datetime | None = None,
 ) -> dict:
     context = github_context(env)
@@ -115,6 +116,7 @@ def build_record(
         "tree": tree,
         "base_sha": base,
         "commit_message": try_git(["log", "-1", "--format=%s"], root) or "",
+        "environment": environment or None,
         **context,
         "files": [[path, fingerprinter.hash(path)] for path in paths],
         "tests": tests,

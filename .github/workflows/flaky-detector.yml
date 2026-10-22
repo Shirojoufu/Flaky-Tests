@@ -56,3 +56,37 @@ jobs:
         run: |
           echo "::error::Tests failed and still failed on retry. See the job summary for details."
           exit 1
+
+  # End-to-end check of this commit's detector: replay Flaky-Test-Lab's 30-run history (races,
+  # timeouts, node crashes, real regressions, a matrix...) and require every verdict to be right.
+  lab-validation:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@v7
+        with:
+          repository: Shirojoufu/Flaky-Test-Lab
+          path: lab
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install this detector and the lab
+        run: pip install -e . -e "./lab[test]"
+
+      - name: Simulate and validate
+        run: python lab/sim/simulate.py --out sim-output --summary-file "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload simulation output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lab-simulation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: sim-output
