@@ -1,0 +1,882 @@
+{
+ "base_sha": "d873311116041613e87deb162a88dd571c2423de",
+ "commit_message": "Date fixes from the last flaky run, and report possibly fixed flakes",
+ "coverage": {
+  "covered": 938,
+  "files": {
+   "flaky_detector/__init__.py": {
+    "covered": 1,
+    "missing": [],
+    "percent": 100.0,
+    "statements": 1
+   },
+   "flaky_detector/__main__.py": {
+    "covered": 0,
+    "missing": [
+     [
+      1,
+      1
+     ],
+     [
+      3,
+      3
+     ]
+    ],
+    "percent": 0.0,
+    "statements": 2
+   },
+   "flaky_detector/analysis.py": {
+    "covered": 205,
+    "missing": [
+     [
+      212,
+      212
+     ],
+     [
+      282,
+      282
+     ]
+    ],
+    "percent": 99.03,
+    "statements": 207
+   },
+   "flaky_detector/cli.py": {
+    "covered": 97,
+    "missing": [
+     [
+      108,
+      109
+     ],
+     [
+      130,
+      131
+     ],
+     [
+      134,
+      135
+     ],
+     [
+      148,
+      148
+     ],
+     [
+      156,
+      158
+     ],
+     [
+      162,
+      163
+     ],
+     [
+      165,
+      172
+     ],
+     [
+      176,
+      176
+     ],
+     [
+      178,
+      179
+     ],
+     [
+      185,
+      186
+     ]
+    ],
+    "percent": 79.51,
+    "statements": 122
+   },
+   "flaky_detector/coverage_data.py": {
+    "covered": 77,
+    "missing": [
+     [
+      126,
+      126
+     ]
+    ],
+    "percent": 98.72,
+    "statements": 78
+   },
+   "flaky_detector/fingerprint.py": {
+    "covered": 37,
+    "missing": [
+     [
+      65,
+      65
+     ],
+     [
+      72,
+      72
+     ]
+    ],
+    "percent": 94.87,
+    "statements": 39
+   },
+   "flaky_detector/gitutil.py": {
+    "covered": 45,
+    "missing": [
+     [
+      49,
+      50
+     ]
+    ],
+    "percent": 95.74,
+    "statements": 47
+   },
+   "flaky_detector/history.py": {
+    "covered": 69,
+    "missing": [
+     [
+      32,
+      33
+     ],
+     [
+      91,
+      92
+     ],
+     [
+      97,
+      99
+     ]
+    ],
+    "percent": 90.79,
+    "statements": 76
+   },
+   "flaky_detector/ingest.py": {
+    "covered": 67,
+    "missing": [
+     [
+      78,
+      79
+     ],
+     [
+      129,
+      130
+     ]
+    ],
+    "percent": 94.37,
+    "statements": 71
+   },
+   "flaky_detector/junit.py": {
+    "covered": 41,
+    "missing": [
+     [
+      41,
+      42
+     ]
+    ],
+    "percent": 95.35,
+    "statements": 43
+   },
+   "flaky_detector/report.py": {
+    "covered": 178,
+    "missing": [
+     [
+      170,
+      170
+     ],
+     [
+      180,
+      180
+     ],
+     [
+      205,
+      205
+     ],
+     [
+      214,
+      215
+     ],
+     [
+      217,
+      218
+     ],
+     [
+      224,
+      224
+     ],
+     [
+      293,
+      293
+     ],
+     [
+      314,
+      314
+     ],
+     [
+      321,
+      321
+     ],
+     [
+      326,
+      326
+     ],
+     [
+      342,
+      342
+     ],
+     [
+      353,
+      353
+     ]
+    ],
+    "percent": 92.71,
+    "statements": 192
+   },
+   "flaky_detector/scan.py": {
+    "covered": 92,
+    "missing": [
+     [
+      40,
+      40
+     ],
+     [
+      45,
+      50
+     ],
+     [
+      54,
+      54
+     ],
+     [
+      58,
+      60
+     ],
+     [
+      129,
+      131
+     ],
+     [
+      142,
+      142
+     ],
+     [
+      145,
+      145
+     ],
+     [
+      154,
+      154
+     ]
+    ],
+    "percent": 84.4,
+    "statements": 109
+   },
+   "flaky_detector/store.py": {
+    "covered": 29,
+    "missing": [
+     [
+      43,
+      45
+     ],
+     [
+      47,
+      47
+     ]
+    ],
+    "percent": 87.88,
+    "statements": 33
+   }
+  },
+  "percent": 91.96,
+  "statements": 1020
+ },
+ "diff_coverage": {
+  "changed_statements": 12,
+  "covered": 11,
+  "files": {
+   "flaky_detector/analysis.py": {
+    "changed_statements": 10,
+    "covered": 10,
+    "uncovered": []
+   },
+   "flaky_detector/report.py": {
+    "changed_statements": 2,
+    "covered": 1,
+    "uncovered": [
+     [
+      170,
+      170
+     ]
+    ]
+   }
+  },
+  "percent": 91.67,
+  "unmeasured_files": []
+ },
+ "environment": null,
+ "event": "push",
+ "files": [
+  [
+   "flaky_detector/__init__.py",
+   "f4e1cfb59966"
+  ],
+  [
+   "flaky_detector/__main__.py",
+   "eb53e2f31b2f"
+  ],
+  [
+   "flaky_detector/analysis.py",
+   "0dc221770ae3"
+  ],
+  [
+   "flaky_detector/cli.py",
+   "fd4135340114"
+  ],
+  [
+   "flaky_detector/coverage_data.py",
+   "2af71dfd21e1"
+  ],
+  [
+   "flaky_detector/fingerprint.py",
+   "41a9cc7d7522"
+  ],
+  [
+   "flaky_detector/gitutil.py",
+   "707e764084ac"
+  ],
+  [
+   "flaky_detector/history.py",
+   "78686b6c095a"
+  ],
+  [
+   "flaky_detector/ingest.py",
+   "dd608e6b904e"
+  ],
+  [
+   "flaky_detector/junit.py",
+   "4b289c8e55ac"
+  ],
+  [
+   "flaky_detector/report.py",
+   "c5d304b26bed"
+  ],
+  [
+   "flaky_detector/scan.py",
+   "1add50807c36"
+  ],
+  [
+   "flaky_detector/store.py",
+   "9588d191d945"
+  ],
+  [
+   "pyproject.toml",
+   "995a1a9cc8ba"
+  ],
+  [
+   "tests/test_analysis.py",
+   "267d6e40a34f"
+  ],
+  [
+   "tests/test_cli.py",
+   "43f4328af729"
+  ],
+  [
+   "tests/test_coverage_data.py",
+   "bb8a4b07ad3b"
+  ],
+  [
+   "tests/test_history.py",
+   "e76d586b9b57"
+  ],
+  [
+   "tests/test_junit.py",
+   "a5c44890cd35"
+  ],
+  [
+   "tests/test_scan.py",
+   "48dd5614c7d4"
+  ]
+ ],
+ "merged_pr": null,
+ "pr_head_ref": null,
+ "pr_head_sha": null,
+ "pr_number": null,
+ "ref": "refs/heads/main",
+ "repository": "Shirojoufu/Flaky-Tests",
+ "run_attempt": 1,
+ "run_id": "39859003746",
+ "schema": 1,
+ "sha": "ec75748fc1a393599e37fe60872e412d57e89ae8",
+ "tests": {
+  "tests.test_analysis.test_change_to_a_file_only_the_failure_path_runs_is_new_code": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    5,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "7de0ecd508b56728bebc",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_classify_current_known_flaky_and_real_failures": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_dormant_flake_is_inactive": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.002,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_environment_specific_failure_is_not_flaky": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_failure_after_code_change_is_not_flaky": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_failure_path_touching_extra_files_is_still_same_code": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    5,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "7de0ecd508b56728bebc",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_fix_is_dated_to_the_change_that_stopped_the_flake_not_later_ones": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.002,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_fix_needs_enough_passes_for_the_old_failure_rate": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.002,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_fixed_regression_is_healthy": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_flake_fixed_by_a_code_change": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.002,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_matrix_environments_count_as_one_run_for_recency": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.002,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_matrix_records_of_one_run_are_stored_side_by_side": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    12,
+    13,
+    14
+   ],
+   "duration": 0.006,
+   "fingerprint": "346e20033c134d3a88e1",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_pass_on_retry_within_one_run_is_flaky": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_run_rows_count_flaky_failures_and_coverage": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_same_code_pass_and_fail_is_flaky_and_onset_is_tracked": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.006,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_scheduled_runs_of_main_count_as_main": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_severity_levels": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_analysis.test_skipped_attempts_are_ignored": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    13,
+    14
+   ],
+   "duration": 0.001,
+   "fingerprint": "058ce98c75f7f923eb6a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_changed_lines_parses_added_and_modified_lines": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    6,
+    13,
+    15
+   ],
+   "duration": 0.027,
+   "fingerprint": "9c4a71a7f9f3c367c8dd",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_ingest_and_analyze_end_to_end": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    12,
+    13,
+    15
+   ],
+   "duration": 0.096,
+   "fingerprint": "69a1ea8aaafe777e8b03",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_ingest_requires_junit": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    3,
+    13,
+    15
+   ],
+   "duration": 0.005,
+   "fingerprint": "bfc7b2c8831bfc476f84",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_dependencies_per_test": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.001,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_diff_coverage_reports_uncovered_changed_statements": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.001,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_diff_coverage_without_measurable_changes": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.001,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_mangle_matches_pytest_junit_names": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.001,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_ranges_collapse_consecutive_lines": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.002,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_coverage_data.test_summary_excludes_tests_and_normalises_paths": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    13,
+    16
+   ],
+   "duration": 0.001,
+   "fingerprint": "a3bd22f6fe0df43af7a3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_history.test_auth_env_uses_config_env_not_arguments": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    6,
+    13,
+    17
+   ],
+   "duration": 0.002,
+   "fingerprint": "1691f208b61d1b6b6e08",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_history.test_fetch_history_without_branch": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    6,
+    7,
+    13,
+    17
+   ],
+   "duration": 0.017,
+   "fingerprint": "e72467b1ecd840628479",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_history.test_publish_creates_branch_then_appends_from_another_clone": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    6,
+    7,
+    10,
+    12,
+    13,
+    17
+   ],
+   "duration": 0.19,
+   "fingerprint": "a54ee029f5fcbcd7f305",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_junit.test_duplicate_entries_keep_worst_outcome_and_total_time": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    9,
+    13,
+    18
+   ],
+   "duration": 0.002,
+   "fingerprint": "0e464da958870bf7dbac",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_junit.test_parses_outcomes_and_keys": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    9,
+    13,
+    18
+   ],
+   "duration": 0.002,
+   "fingerprint": "0e464da958870bf7dbac",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_scan.test_ignores_logs_without_verbose_pytest_output": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    11,
+    13,
+    19
+   ],
+   "duration": 0.001,
+   "fingerprint": "5965ef27ab1b03bf5c3e",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_scan.test_parse_pytest_log": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    4,
+    11,
+    13,
+    19
+   ],
+   "duration": 0.001,
+   "fingerprint": "2ffad3322c631a8c984a",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_scan.test_scan_builds_records_and_detects_rerun_flake": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    2,
+    4,
+    8,
+    11,
+    12,
+    13,
+    19
+   ],
+   "duration": 0.005,
+   "fingerprint": "504d2be59cc144c5f7ba",
+   "fingerprint_kind": "precise"
+  }
+ },
+ "timestamp": "2026-10-22T21:39:40Z",
+ "tree": "7c436897ea37e3c3924fd9bf3da57817dde0bb67",
+ "workflow": "Tests and flaky test detection"
+}
