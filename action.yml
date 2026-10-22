@@ -25,8 +25,9 @@ inputs:
     default: flaky-data
   publish:
     description: >
-      Save this run to the history branch: `auto` (except fork PRs, whose token is read-only),
-      `true` or `false`. Needs `contents: write`.
+      Save this run to the history branch: `true`, `false`, or `auto`. `auto` skips fork and
+      Dependabot PRs (their token is read-only) and only warns if the push is refused.
+      Needs `contents: write`.
     default: auto
   main-ref:
     description: Ref of the main branch.
@@ -100,8 +101,8 @@ runs:
 
     - name: Save run to history branch
       if: >
-        inputs.publish == 'true' || (inputs.publish == 'auto' && (github.event_name != 'pull_request'
-        || github.event.pull_request.head.repo.full_name == github.repository))
+        inputs.publish == 'true' || (inputs.publish == 'auto' && github.actor != 'dependabot[bot]'
+        && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository))
       shell: bash
       env:
         FLAKY_GIT_TOKEN: ${{ inputs.token }}
@@ -110,7 +111,9 @@ runs:
         MAIN_REF: ${{ inputs.main-ref }}
         THRESHOLD: ${{ inputs.coverage-threshold }}
         WITH_REPORTS: ${{ github.event_name == 'push' && github.ref == inputs.main-ref }}
+        PUBLISH: ${{ inputs.publish }}
       run: |
         args=(--branch "$BRANCH" --main-ref "$MAIN_REF" --coverage-threshold "$THRESHOLD")
         if [ "$WITH_REPORTS" = "true" ]; then args+=(--with-reports); fi
+        if [ "$PUBLISH" = "auto" ]; then args+=(--best-effort); fi
         "$RUNNER_TEMP/flaky-detector/bin/flaky-detector" publish "$RUN_FILE" "${args[@]}"

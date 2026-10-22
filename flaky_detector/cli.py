@@ -66,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
     push = commands.add_parser("publish", help="append a run record to the history branch and push it")
     push.add_argument("run_file", type=Path, help="run record written by ingest")
     push.add_argument("--with-reports", action="store_true", help="also regenerate reports/ on the branch")
+    push.add_argument("--best-effort", action="store_true",
+                      help="warn instead of failing when the push is refused, e.g. with a read-only token")
     _history_options(push)
     _report_options(push)
 
@@ -157,6 +159,9 @@ def _publish(args: argparse.Namespace) -> int:
         publish(args.run_file, args.repo, args.branch, token=os.environ.get(TOKEN_ENV),
                 with_reports=args.with_reports, main_ref=args.main_ref, threshold=args.coverage_threshold)
     except RuntimeError as exc:
+        if args.best_effort:
+            print(f"::warning title=Run not recorded::{exc}; this run is reported but not saved to history")
+            return 0
         print(f"error: {exc}", file=sys.stderr)
         return 1
     print(f"Recorded {args.run_file.name} on {args.branch}", file=sys.stderr)
