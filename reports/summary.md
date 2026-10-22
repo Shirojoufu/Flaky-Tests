@@ -1,12 +1,12 @@
 # Flaky test report
 
-**Runs analysed:** 7 (7 on main, 0 from pull requests) · **Tests tracked:** 29 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
+**Runs analysed:** 8 (8 on main, 0 from pull requests) · **Tests tracked:** 34 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0 · **Fixed flakes:** 0
 
 ## This run
 
-main · commit `4d866f2` · Label chart runs by number with a collapsible run key
+main · commit `d873311` · Judge matrix environments separately, add fixed status, validate against the lab in CI
 
-All 29 tests passed.
+All 34 tests passed.
 
 ## Flaky tests
 
@@ -16,26 +16,26 @@ No flaky tests detected: no test has both passed and failed on the same code.
 
 ```mermaid
 xychart-beta
-    title "First-attempt pass rate (%), last 7 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7]
+    title "First-attempt pass rate (%), last 8 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8]
     y-axis "Pass rate" 0 --> 100
-    line [96.15, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+    line [96.15, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Flaky failures per run, last 7 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7]
+    title "Flaky failures per run, last 8 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8]
     y-axis "Flaky failures" 0 --> 1
-    bar [0, 0, 0, 0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Line coverage (%), last 7 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7]
+    title "Line coverage (%), last 8 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8]
     y-axis "Coverage" 0 --> 100
-    line [88.65, 92.11, 92.13, 92.54, 92.26, 92.26, 92.3]
+    line [88.65, 92.11, 92.13, 92.54, 92.26, 92.26, 92.3, 92.0]
 ```
 
 <details><summary>Run key</summary>
@@ -49,12 +49,20 @@ xychart-beta
 | 5 | `fcbe75a` | main | 2026-10-22 |
 | 6 | `4c1f6f0` | main | 2026-10-22 |
 | 7 | `4d866f2` | main | 2026-10-22 |
+| 8 | `d873311` | main | 2026-10-22 |
 
 </details>
 
 ## Coverage
 
-**Total:** 92.3% of 974 statements (+0.04 vs main at `4c1f6f0`) · **This change:** 100.0% of 7 changed statements covered
+**Total:** 92.0% of 1013 statements (-0.30 vs main at `4d866f2`) · **This change:** 88.89% of 54 changed statements covered
+
+### Untested lines in this change
+
+| File | Uncovered changed lines |
+| --- | --- |
+| `flaky_detector/analysis.py` | 205 |
+| `flaky_detector/report.py` | 202, 211-212, 214-215 |
 
 ### Files no test executes
 
@@ -65,7 +73,7 @@ xychart-beta
 | File | Coverage | Missing lines |
 | --- | --- | --- |
 | `flaky_detector/__main__.py` | 0.0% | 1, 3 |
-| `flaky_detector/cli.py` | 79.34% | 105-106, 126-127, 130-131, 144, 152-154, 158-159, 161-168, 172, 174-175, 181-182 |
+| `flaky_detector/cli.py` | 79.51% | 108-109, 130-131, 134-135, 148, 156-158, 162-163, 165-172, 176, 178-179, 185-186 |
 
 ## Graph data
 
