@@ -26,7 +26,7 @@ def _record(tmp_path, run_id, timestamp):
 def test_publish_creates_branch_then_appends_from_another_clone(tmp_path, monkeypatch):
     monkeypatch.setattr(history.time, "sleep", lambda _: None)
     remote = tmp_path / "remote.git"
-    run_git(["init", "-q", "--bare", str(remote)], tmp_path)
+    run_git(["init", "-q", "--bare", "-b", "main", str(remote)], tmp_path)
     seed = _clone_with_remote(tmp_path, "seed", remote)
     (seed / "README").write_text("hi", encoding="utf-8")
     run_git(["add", "."], seed)
@@ -54,7 +54,7 @@ def test_publish_creates_branch_then_appends_from_another_clone(tmp_path, monkey
 
 def test_fetch_history_without_branch(tmp_path):
     remote = tmp_path / "remote.git"
-    run_git(["init", "-q", "--bare", str(remote)], tmp_path)
+    run_git(["init", "-q", "--bare", "-b", "main", str(remote)], tmp_path)
     work = _clone_with_remote(tmp_path, "work", remote)
 
     assert fetch_history(work, "flaky-data", tmp_path / "store") == 0
