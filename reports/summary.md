@@ -1,10 +1,10 @@
 # Flaky test report
 
-**Runs analysed:** 5 (5 on main, 0 from pull requests) · **Tests tracked:** 29 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
+**Runs analysed:** 6 (6 on main, 0 from pull requests) · **Tests tracked:** 29 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
 
 ## This run
 
-main · commit `fcbe75a` · Skip Dependabot PRs and only warn on refused pushes in publish: auto
+main · commit `4c1f6f0` · Document union fingerprints, the lab, and the read-only test job pattern
 
 All 29 tests passed.
 
@@ -16,37 +16,31 @@ No flaky tests detected: no test has both passed and failed on the same code.
 
 ```mermaid
 xychart-beta
-    title "First-attempt pass rate (%), last 5 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
+    title "First-attempt pass rate (%), last 6 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a", "4c1f6f0"]
     y-axis "Pass rate" 0 --> 100
-    line [96.15, 100.0, 100.0, 100.0, 100.0]
+    line [96.15, 100.0, 100.0, 100.0, 100.0, 100.0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Flaky failures per run, last 5 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
+    title "Flaky failures per run, last 6 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a", "4c1f6f0"]
     y-axis "Flaky failures" 0 --> 1
-    bar [0, 0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0, 0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Line coverage (%), last 5 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
+    title "Line coverage (%), last 6 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a", "4c1f6f0"]
     y-axis "Coverage" 0 --> 100
-    line [88.65, 92.11, 92.13, 92.54, 92.26]
+    line [88.65, 92.11, 92.13, 92.54, 92.26, 92.26]
 ```
 
 ## Coverage
 
-**Total:** 92.26% of 969 statements (-0.28 vs main at `37ca78a`) · **This change:** 25.0% of 4 changed statements covered
-
-### Untested lines in this change
-
-| File | Uncovered changed lines |
-| --- | --- |
-| `flaky_detector/cli.py` | 162-164 |
+**Total:** 92.26% of 969 statements (+0.00 vs main at `fcbe75a`)
 
 ### Files no test executes
 
