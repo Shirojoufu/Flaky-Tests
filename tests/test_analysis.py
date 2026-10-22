@@ -94,6 +94,16 @@ def test_skipped_attempts_are_ignored():
     assert analyze(runs)["t"].observations == 1
 
 
+def test_scheduled_runs_of_main_count_as_main():
+    runs = [
+        main_run(0, {"t": ("passed", "a")}),
+        run(1, {"t": ("failed", "a")}, event="schedule", ref="refs/heads/main"),
+        run(2, {"t": ("failed", "a")}, event="pull_request"),
+    ]
+
+    assert analyze(runs)["t"].main_failures == 1
+
+
 def test_severity_levels():
     assert severity(0.30, 5, 0, active=True) == "critical"
     assert severity(0.01, 2, 3, active=True) == "critical"

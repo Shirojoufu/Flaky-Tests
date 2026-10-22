@@ -15,6 +15,11 @@ inputs:
   coverage:
     description: coverage.py JSON report made with `--cov-context=test` and `show_contexts = true`.
     default: ""
+  fingerprint-extra:
+    description: >
+      Space-separated globs of files every test depends on, beyond the defaults (lockfiles,
+      pyproject.toml). Use it for code coverage can't see, such as code run in subprocesses.
+    default: ""
   history-branch:
     description: Branch holding the run history. Created on the first run.
     default: flaky-data
@@ -63,6 +68,7 @@ runs:
         JUNIT: ${{ inputs.junit }}
         RETRY_JUNIT: ${{ inputs.retry-junit }}
         COVERAGE: ${{ inputs.coverage }}
+        FINGERPRINT_EXTRA: ${{ inputs.fingerprint-extra }}
         BRANCH: ${{ inputs.history-branch }}
         MAIN_REF: ${{ inputs.main-ref }}
         THRESHOLD: ${{ inputs.coverage-threshold }}
@@ -74,6 +80,10 @@ runs:
         args=(--junit "$JUNIT" --store "$store")
         if [ -n "$RETRY_JUNIT" ]; then args+=(--rerun "$RETRY_JUNIT"); fi
         if [ -n "$COVERAGE" ]; then args+=(--coverage "$COVERAGE"); fi
+        if [ -n "$FINGERPRINT_EXTRA" ]; then
+          read -ra extra <<< "$FINGERPRINT_EXTRA"
+          args+=(--fingerprint-extra "${extra[@]}")
+        fi
         run_file=$("$fd" ingest "${args[@]}")
         "$fd" analyze --store "$store" --current "$run_file" --out "$report" \
           --summary-file "$GITHUB_STEP_SUMMARY" --annotate \

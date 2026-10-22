@@ -69,7 +69,8 @@ class Verdict:
 
 
 def is_main_push(run: dict, main_ref: str = MAIN_REF) -> bool:
-    return run.get("event") == "push" and run.get("ref") == main_ref
+    """A run on the main branch itself: a push or merge, or a scheduled or manual run of main."""
+    return run.get("event") != "pull_request" and run.get("ref") == main_ref
 
 
 def run_ref(runs: list[dict], index: int) -> dict:

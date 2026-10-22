@@ -44,8 +44,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="when the run happened, ISO 8601 (default: now)")
     ingest.add_argument("--exclude", nargs="*", default=list(coverage_data.DEFAULT_EXCLUDE), metavar="GLOB",
                         help="files left out of coverage percentages (default: test files)")
-    ingest.add_argument("--fingerprint-extra", nargs="*", default=list(DEFAULT_EXTRA), metavar="GLOB",
-                        help="files every test depends on, such as lockfiles")
+    ingest.add_argument("--fingerprint-extra", nargs="*", default=[], metavar="GLOB",
+                        help="more files every test depends on, added to the defaults "
+                             f"({', '.join(DEFAULT_EXTRA)}); e.g. code run in subprocesses")
     ingest.add_argument("--fingerprint-mode", choices=[PRECISE, TREE], default=PRECISE,
                         help="precise: files each test executed; tree: the whole commit tree")
 
@@ -109,7 +110,7 @@ def _ingest(args: argparse.Namespace) -> int:
         env=dict(os.environ),
         base_sha=args.base_sha,
         exclude=tuple(args.exclude),
-        extra=tuple(args.fingerprint_extra),
+        extra=(*DEFAULT_EXTRA, *args.fingerprint_extra),
         mode=args.fingerprint_mode,
         now=args.timestamp,
     )

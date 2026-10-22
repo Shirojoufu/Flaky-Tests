@@ -279,9 +279,12 @@ def _coverage_section(gaps: dict) -> list[str]:
 def _where(run: dict) -> str:
     if run.get("pr_number"):
         return f"PR #{run['pr_number']}"
-    if run.get("event") == "push":
-        branch = (run.get("ref") or "").removeprefix("refs/heads/") or "push"
-        return f"{branch} (merge of #{run['merged_pr']})" if run.get("merged_pr") else branch
+    ref = run.get("ref") or ""
+    if ref.startswith("refs/heads/"):
+        branch = ref.removeprefix("refs/heads/")
+        if run.get("merged_pr"):
+            return f"{branch} (merge of #{run['merged_pr']})"
+        return branch if run.get("event") == "push" else f"{branch} ({run.get('event')})"
     return run.get("event") or "run"
 
 
