@@ -1,16 +1,16 @@
 {
  "available": true,
- "run_index": 1,
- "sha": "c120253db25ef59d11d06f549ec715363c340cf0",
- "percent": 92.11,
- "statements": 925,
- "covered": 852,
+ "run_index": 2,
+ "sha": "fa52739a6c13a275f841730db7ecea46be061055",
+ "percent": 92.13,
+ "statements": 928,
+ "covered": 855,
  "threshold": 80.0,
  "baseline": {
-  "run_index": 0,
-  "sha": "c9eafd7fa55a342e5c69d29e7f3f3c03112fadb5",
-  "percent": 88.65,
-  "delta": 3.46
+  "run_index": 1,
+  "sha": "c120253db25ef59d11d06f549ec715363c340cf0",
+  "percent": 92.11,
+  "delta": 0.02
  },
  "below_threshold": [
   {
@@ -34,10 +34,26 @@
   "flaky_detector/__main__.py"
  ],
  "diff": {
-  "changed_statements": 0,
-  "covered": 0,
-  "files": {},
-  "percent": null,
+  "changed_statements": 8,
+  "covered": 8,
+  "files": {
+   "flaky_detector/analysis.py": {
+    "changed_statements": 1,
+    "covered": 1,
+    "uncovered": []
+   },
+   "flaky_detector/cli.py": {
+    "changed_statements": 1,
+    "covered": 1,
+    "uncovered": []
+   },
+   "flaky_detector/report.py": {
+    "changed_statements": 6,
+    "covered": 6,
+    "uncovered": []
+   }
+  },
+  "percent": 100.0,
   "unmeasured_files": []
  }
 }
