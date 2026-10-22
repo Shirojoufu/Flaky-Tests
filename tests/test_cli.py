@@ -105,6 +105,8 @@ def test_ingest_and_analyze_end_to_end(repo, tmp_path, monkeypatch, capsys):
     assert "`tests.test_core.test_add`" in summary
     assert "Consistently failing tests" in summary
     assert "Untested lines in this change" in summary
+    assert 'x-axis "Run" [1, 2, 3]' in summary
+    assert f"| 3 | `{second[:7]}` | main (merge of #7) |" in summary
     for name in ("runs.csv", "runs.json", "test_outcomes.csv", "coverage_files.csv", "summary.md"):
         assert (out / name).is_file()
     assert "::warning" not in capsys.readouterr().out  # the current run's only failure is a real one

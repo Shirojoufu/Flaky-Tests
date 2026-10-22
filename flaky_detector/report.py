@@ -205,7 +205,7 @@ def _trend_section(rows: list[dict]) -> list[str]:
         "```mermaid",
         "xychart-beta",
         f'    title "First-attempt pass rate (%), last {len(recent)} runs"',
-        f"    x-axis [{labels}]",
+        f'    x-axis "Run" [{labels}]',
         '    y-axis "Pass rate" 0 --> 100',
         f"    line [{', '.join(str(r['pass_rate']) for r in recent)}]",
         "```",
@@ -213,7 +213,7 @@ def _trend_section(rows: list[dict]) -> list[str]:
         "```mermaid",
         "xychart-beta",
         f'    title "Flaky failures per run, last {len(recent)} runs"',
-        f"    x-axis [{labels}]",
+        f'    x-axis "Run" [{labels}]',
         f'    y-axis "Flaky failures" 0 --> {max(1, *(r["flaky_failures"] for r in recent))}',
         f"    bar [{', '.join(str(r['flaky_failures']) for r in recent)}]",
         "```",
@@ -225,17 +225,25 @@ def _trend_section(rows: list[dict]) -> list[str]:
             "```mermaid",
             "xychart-beta",
             f'    title "Line coverage (%), last {len(covered)} runs"',
-            f"    x-axis [{_labels(covered)}]",
+            f'    x-axis "Run" [{_labels(covered)}]',
             '    y-axis "Coverage" 0 --> 100',
             f"    line [{', '.join(str(r['coverage']) for r in covered)}]",
             "```",
             "",
         ]
-    return lines
+    return lines + _run_key(sorted({r["index"]: r for r in recent + covered}.values(), key=lambda r: r["index"]))
 
 
 def _labels(rows: list[dict]) -> str:
-    return ", ".join(f'"{_short(r["sha"])}"' for r in rows)
+    """Charts label runs by number (stable across reports); ``_run_key`` says what each one was."""
+    return ", ".join(str(r["index"] + 1) for r in rows)
+
+
+def _run_key(rows: list[dict]) -> list[str]:
+    lines = ["<details><summary>Run key</summary>", "", "| Run | Commit | Where | Date |", "| --- | --- | --- | --- |"]
+    for r in rows:
+        lines.append(f"| {r['index'] + 1} | `{_short(r['sha'])}` | {_where(r)} | {(r.get('timestamp') or '')[:10]} |")
+    return lines + ["", "</details>", ""]
 
 
 def _coverage_section(gaps: dict) -> list[str]:
