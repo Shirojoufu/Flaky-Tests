@@ -71,7 +71,8 @@ jobs:
         continue-on-error: true
         run: pytest -v --last-failed --no-cov --junitxml=.flaky/junit-retry-1.xml
 
-      - uses: Shirojoufu/Flaky-Tests@<commit sha>
+      # Pin the release's commit SHA, with its tag as a comment, so Dependabot can bump both
+      - uses: Shirojoufu/Flaky-Tests@ec75748fc1a393599e37fe60872e412d57e89ae8 # v0.1.0
         if: always() && steps.tests.outcome != 'skipped'
         with:
           junit: .flaky/junit.xml
@@ -150,3 +151,10 @@ python -m flaky_detector analyze --store .flaky/history/runs --out .flaky/report
 ```
 
 Run `python -m flaky_detector ingest --help` and `analyze --help` for all options (coverage threshold, exclusions, extra fingerprint files, and more).
+
+## Releasing
+
+1. Bump `version` in `pyproject.toml` and merge to `main`. CI's `lab-validation` job must pass.
+2. Create a release tagged `vX.Y.Z` on that commit: `gh release create vX.Y.Z --target <sha> --generate-notes`.
+
+Repos that pin the action by SHA with a `# vX.Y.Z` comment get a Dependabot PR for the new release on their next weekly `github-actions` check. Flaky-Test-Lab has no Dependabot config, so bump its two pins by hand.
