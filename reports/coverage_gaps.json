@@ -1,16 +1,16 @@
 {
  "available": true,
- "run_index": 3,
- "sha": "37ca78a3959e802e362131ebdd7720db4f1ec757",
- "percent": 92.54,
- "statements": 965,
- "covered": 893,
+ "run_index": 4,
+ "sha": "fcbe75aeca9ff191a0e95997efad479666029852",
+ "percent": 92.26,
+ "statements": 969,
+ "covered": 894,
  "threshold": 80.0,
  "baseline": {
-  "run_index": 2,
-  "sha": "fa52739a6c13a275f841730db7ecea46be061055",
-  "percent": 92.13,
-  "delta": 0.41
+  "run_index": 3,
+  "sha": "37ca78a3959e802e362131ebdd7720db4f1ec757",
+  "percent": 92.54,
+  "delta": -0.28
  },
  "below_threshold": [
   {
@@ -28,51 +28,75 @@
      3
     ]
    ]
+  },
+  {
+   "file": "flaky_detector/cli.py",
+   "percent": 79.34,
+   "statements": 121,
+   "covered": 96,
+   "missing": [
+    [
+     105,
+     106
+    ],
+    [
+     126,
+     127
+    ],
+    [
+     130,
+     131
+    ],
+    [
+     144,
+     144
+    ],
+    [
+     152,
+     154
+    ],
+    [
+     158,
+     159
+    ],
+    [
+     161,
+     168
+    ],
+    [
+     172,
+     172
+    ],
+    [
+     174,
+     175
+    ],
+    [
+     181,
+     182
+    ]
+   ]
   }
  ],
  "never_executed": [
   "flaky_detector/__main__.py"
  ],
  "diff": {
-  "changed_statements": 60,
-  "covered": 58,
+  "changed_statements": 4,
+  "covered": 1,
   "files": {
-   "flaky_detector/analysis.py": {
-    "changed_statements": 25,
-    "covered": 25,
-    "uncovered": []
-   },
    "flaky_detector/cli.py": {
-    "changed_statements": 1,
+    "changed_statements": 4,
     "covered": 1,
-    "uncovered": []
-   },
-   "flaky_detector/fingerprint.py": {
-    "changed_statements": 20,
-    "covered": 18,
     "uncovered": [
      [
-      65,
-      65
-     ],
-     [
-      72,
-      72
+      162,
+      164
      ]
     ]
-   },
-   "flaky_detector/ingest.py": {
-    "changed_statements": 10,
-    "covered": 10,
-    "uncovered": []
-   },
-   "flaky_detector/report.py": {
-    "changed_statements": 4,
-    "covered": 4,
-    "uncovered": []
    }
   },
-  "percent": 96.67,
+  "percent": 25.0,
   "unmeasured_files": []
  }
 }

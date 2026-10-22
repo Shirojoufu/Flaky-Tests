@@ -1,10 +1,10 @@
 # Flaky test report
 
-**Runs analysed:** 4 (4 on main, 0 from pull requests) · **Tests tracked:** 29 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
+**Runs analysed:** 5 (5 on main, 0 from pull requests) · **Tests tracked:** 29 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
 
 ## This run
 
-main · commit `37ca78a` · Fingerprint tests over every file they executed in any run
+main · commit `fcbe75a` · Skip Dependabot PRs and only warn on refused pushes in publish: auto
 
 All 29 tests passed.
 
@@ -16,37 +16,37 @@ No flaky tests detected: no test has both passed and failed on the same code.
 
 ```mermaid
 xychart-beta
-    title "First-attempt pass rate (%), last 4 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a"]
+    title "First-attempt pass rate (%), last 5 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
     y-axis "Pass rate" 0 --> 100
-    line [96.15, 100.0, 100.0, 100.0]
+    line [96.15, 100.0, 100.0, 100.0, 100.0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Flaky failures per run, last 4 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a"]
+    title "Flaky failures per run, last 5 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
     y-axis "Flaky failures" 0 --> 1
-    bar [0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Line coverage (%), last 4 runs"
-    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a"]
+    title "Line coverage (%), last 5 runs"
+    x-axis ["c9eafd7", "c120253", "fa52739", "37ca78a", "fcbe75a"]
     y-axis "Coverage" 0 --> 100
-    line [88.65, 92.11, 92.13, 92.54]
+    line [88.65, 92.11, 92.13, 92.54, 92.26]
 ```
 
 ## Coverage
 
-**Total:** 92.54% of 965 statements (+0.41 vs main at `fa52739`) · **This change:** 96.67% of 60 changed statements covered
+**Total:** 92.26% of 969 statements (-0.28 vs main at `37ca78a`) · **This change:** 25.0% of 4 changed statements covered
 
 ### Untested lines in this change
 
 | File | Uncovered changed lines |
 | --- | --- |
-| `flaky_detector/fingerprint.py` | 65, 72 |
+| `flaky_detector/cli.py` | 162-164 |
 
 ### Files no test executes
 
@@ -57,6 +57,7 @@ xychart-beta
 | File | Coverage | Missing lines |
 | --- | --- | --- |
 | `flaky_detector/__main__.py` | 0.0% | 1, 3 |
+| `flaky_detector/cli.py` | 79.34% | 105-106, 126-127, 130-131, 144, 152-154, 158-159, 161-168, 172, 174-175, 181-182 |
 
 ## Graph data
 
