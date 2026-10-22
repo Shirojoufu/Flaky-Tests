@@ -9,6 +9,6 @@ flaky_detector/gitutil.py,47,45,95.74,49-50
 flaky_detector/history.py,76,69,90.79,"32-33, 91-92, 97-99"
 flaky_detector/ingest.py,71,67,94.37,"77-78, 127-128"
 flaky_detector/junit.py,43,41,95.35,41-42
-flaky_detector/report.py,175,167,95.43,"175, 200, 261, 282, 289, 294, 310, 321"
+flaky_detector/report.py,180,172,95.56,"175, 200, 269, 290, 297, 302, 318, 329"
 flaky_detector/scan.py,109,92,84.4,"40, 45-50, 54, 58-60, 129-131, 142, 145, 154"
 flaky_detector/store.py,31,27,87.1,"40-42, 44"
