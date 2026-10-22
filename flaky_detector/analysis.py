@@ -68,7 +68,10 @@ class Verdict:
     previous_code_seen_in: dict | None = None
     failing_since: dict | None = None
     fixed_in: dict | None = None  # first run on the code that stopped the flake
+    # Clean since a code change, but not yet enough passes to rule the flake out.
+    possibly_fixed_in: dict | None = None
     passes_since_fix: int = 0
+    passes_needed: int = 0
     last_failure: dict | None = None
     last_seen: dict | None = None
     timeline: list[list] = field(default_factory=list)
@@ -188,13 +191,17 @@ def _judge(key: str, obs: list[Observation], runs: list[dict], ordinal: list[int
     verdict.introduced_in = run_ref(runs, introduced)
     verdict.previous_code_seen_in = run_ref(runs, previous.run_index) if previous else None
 
-    current = by_fingerprint[obs[-1].fingerprint]
-    if obs[-1].fingerprint not in flaky_set and not any(o.failed for o in current):
-        verdict.passes_since_fix = len(current)
-        if len(current) >= passes_to_trust_fix(verdict.failure_rate):
+    # Everything since the test last ran on flaky code, across any later code changes.
+    last_flaky = max(i for i, o in enumerate(obs) if o.fingerprint in flaky_set)
+    since = obs[last_flaky + 1:]
+    if since and not any(o.failed for o in since):
+        verdict.passes_since_fix = len(since)
+        verdict.passes_needed = passes_to_trust_fix(verdict.failure_rate)
+        if len(since) >= verdict.passes_needed:
             verdict.status = FIXED
-            verdict.fixed_in = run_ref(runs, current[0].run_index)
+            verdict.fixed_in = run_ref(runs, since[0].run_index)
             return verdict
+        verdict.possibly_fixed_in = run_ref(runs, since[0].run_index)
     verdict.severity = severity(verdict.failure_rate, verdict.flaky_failures, verdict.main_failures, verdict.active)
     return verdict
 

@@ -166,6 +166,18 @@ def test_flake_fixed_by_a_code_change():
     assert verdict.severity is None
 
 
+def test_fix_is_dated_to_the_change_that_stopped_the_flake_not_later_ones():
+    runs = [run(i, {"t": ("failed" if i % 2 else "passed", "racy")}) for i in range(6)]
+    runs += [run(i, {"t": ("passed", "with-lock")}) for i in range(6, 9)]
+    runs += [run(i, {"t": ("passed", "lockfile-bumped")}) for i in range(9, 12)]
+
+    verdict = analyze(runs)["t"]
+
+    assert verdict.status == FIXED
+    assert verdict.fixed_in["index"] == 6
+    assert verdict.passes_since_fix == 6
+
+
 def test_fix_needs_enough_passes_for_the_old_failure_rate():
     runs = [run(0, {"t": ("failed", "racy")})] + [run(i, {"t": ("passed", "racy")}) for i in range(1, 10)]
     runs += [run(i, {"t": ("passed", "with-lock")}) for i in range(10, 20)]  # 10% rate needs 29 passes
@@ -173,7 +185,8 @@ def test_fix_needs_enough_passes_for_the_old_failure_rate():
     verdict = analyze(runs)["t"]
 
     assert verdict.status == FLAKY
-    assert verdict.passes_since_fix == 10
+    assert (verdict.passes_since_fix, verdict.passes_needed) == (10, 29)
+    assert verdict.possibly_fixed_in["index"] == 10
     assert passes_to_trust_fix(0.1) == 29
     assert passes_to_trust_fix(0.5) == 5
     assert passes_to_trust_fix(0.9) == 3

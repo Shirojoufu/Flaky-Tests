@@ -166,6 +166,9 @@ def _flaky_section(flaky: list[Verdict]) -> list[str]:
     ]
     for v in flaky[:TABLE_LIMIT]:
         dormant = "" if v.active else " (dormant)"
+        if v.possibly_fixed_in:
+            dormant += (f"<br>🩹 possibly fixed: {v.passes_since_fix}/{v.passes_needed} clean passes since "
+                        f"{_ref(v.possibly_fixed_in)}")
         lines.append(
             f"| {SEVERITY_ICON[v.severity]} {v.severity}{dormant} | `{_cell(v.key)}` "
             f"| {v.failure_rate:.0%} ({v.flaky_failures}/{v.flaky_observations}) | {v.flips} "
