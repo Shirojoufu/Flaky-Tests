@@ -1,30 +1,46 @@
 # Flaky test report
 
-**Runs analysed:** 1 (1 on main, 0 from pull requests) · **Tests tracked:** 26 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 1
+**Runs analysed:** 2 (2 on main, 0 from pull requests) · **Tests tracked:** 26 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0
 
 ## This run
 
-main · commit `c9eafd7` · Quote action input description containing a colon
+main · commit `c120253` · Pin bare test repo to main so HEAD exists whatever init.defaultBranch is
 
-| Test | Verdict | Severity | Message |
-| --- | --- | --- | --- |
-| `tests.test_history.test_publish_creates_branch_then_appends_from_another_clone` | ❌ failure: no evidence of flakiness, likely a real failure |  | subprocess.CalledProcessError: Command '['git', 'worktree', 'add', '--quiet', '--detach', '/tmp/flaky-history-8awddfhq/h |
+All 26 tests passed.
 
 ## Flaky tests
 
 No flaky tests detected: no test has both passed and failed on the same code.
 
-## Consistently failing tests
+## Trends
 
-These fail on their current code and have never passed on it: likely real breakages, not flakes.
+```mermaid
+xychart-beta
+    title "First-attempt pass rate (%), last 2 runs"
+    x-axis ["c9eafd7", "c120253"]
+    y-axis "Pass rate" 0 --> 100
+    line [96.15, 100.0]
+```
 
-| Test | Failing since | Failures |
-| --- | --- | --- |
-| `tests.test_history.test_publish_creates_branch_then_appends_from_another_clone` | `c9eafd7` main 2026-10-22 | 2 |
+```mermaid
+xychart-beta
+    title "Flaky failures per run, last 2 runs"
+    x-axis ["c9eafd7", "c120253"]
+    y-axis "Flaky failures" 0 --> 1
+    bar [0, 0]
+```
+
+```mermaid
+xychart-beta
+    title "Line coverage (%), last 2 runs"
+    x-axis ["c9eafd7", "c120253"]
+    y-axis "Coverage" 0 --> 100
+    line [88.65, 92.11]
+```
 
 ## Coverage
 
-**Total:** 88.65% of 925 statements
+**Total:** 92.11% of 925 statements (+3.46 vs main at `c9eafd7`)
 
 ### Files no test executes
 
@@ -35,7 +51,6 @@ These fail on their current code and have never passed on it: likely real breaka
 | File | Coverage | Missing lines |
 | --- | --- | --- |
 | `flaky_detector/__main__.py` | 0.0% | 1, 3 |
-| `flaky_detector/history.py` | 57.89% | 30-41, 72, 76-83, 85-86, 88-92, 97-99, 105 |
 
 ## Graph data
 
