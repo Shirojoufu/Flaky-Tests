@@ -30,7 +30,7 @@ inputs:
     description: Flag files below this line coverage percent.
     default: "80"
   token:
-    description: Token for reading and pushing the history branch. Works with `persist-credentials: false`.
+    description: "Token for reading and pushing the history branch. Works with `persist-credentials: false`."
     default: ${{ github.token }}
   python:
     description: Python interpreter (3.11+) used to install and run the detector.
