@@ -1,0 +1,106 @@
+name: Flaky test detector
+description: Record a test run, find flaky tests across the run history, and report coverage gaps.
+author: Shirojoufu
+branding:
+  icon: activity
+  color: orange
+
+inputs:
+  junit:
+    description: JUnit XML from the test run.
+    required: true
+  retry-junit:
+    description: JUnit XML from retries of failed tests. Globs allowed; missing files are ignored.
+    default: ""
+  coverage:
+    description: coverage.py JSON report made with `--cov-context=test` and `show_contexts = true`.
+    default: ""
+  history-branch:
+    description: Branch holding the run history. Created on the first run.
+    default: flaky-data
+  publish:
+    description: >
+      Save this run to the history branch: `auto` (except fork PRs, whose token is read-only),
+      `true` or `false`. Needs `contents: write`.
+    default: auto
+  main-ref:
+    description: Ref of the main branch.
+    default: refs/heads/main
+  coverage-threshold:
+    description: Flag files below this line coverage percent.
+    default: "80"
+  token:
+    description: Token for reading and pushing the history branch. Works with `persist-credentials: false`.
+    default: ${{ github.token }}
+  python:
+    description: Python interpreter (3.11+) used to install and run the detector.
+    default: python3
+
+outputs:
+  run-file:
+    description: Path of the run record written for this run.
+    value: ${{ steps.record.outputs.run-file }}
+  report-dir:
+    description: Directory with summary.md and the CSV/JSON graph data.
+    value: ${{ steps.record.outputs.report-dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install flaky-detector
+      shell: bash
+      env:
+        PYTHON: ${{ inputs.python }}
+      run: |
+        "$PYTHON" -m venv "$RUNNER_TEMP/flaky-detector"
+        "$RUNNER_TEMP/flaky-detector/bin/pip" install --quiet --disable-pip-version-check "$GITHUB_ACTION_PATH"
+
+    - name: Record and analyse
+      id: record
+      shell: bash
+      env:
+        FLAKY_GIT_TOKEN: ${{ inputs.token }}
+        JUNIT: ${{ inputs.junit }}
+        RETRY_JUNIT: ${{ inputs.retry-junit }}
+        COVERAGE: ${{ inputs.coverage }}
+        BRANCH: ${{ inputs.history-branch }}
+        MAIN_REF: ${{ inputs.main-ref }}
+        THRESHOLD: ${{ inputs.coverage-threshold }}
+      run: |
+        fd="$RUNNER_TEMP/flaky-detector/bin/flaky-detector"
+        store="$RUNNER_TEMP/flaky-history/runs"
+        report="$RUNNER_TEMP/flaky-report"
+        "$fd" fetch-history --branch "$BRANCH" --store "$store"
+        args=(--junit "$JUNIT" --store "$store")
+        if [ -n "$RETRY_JUNIT" ]; then args+=(--rerun "$RETRY_JUNIT"); fi
+        if [ -n "$COVERAGE" ]; then args+=(--coverage "$COVERAGE"); fi
+        run_file=$("$fd" ingest "${args[@]}")
+        "$fd" analyze --store "$store" --current "$run_file" --out "$report" \
+          --summary-file "$GITHUB_STEP_SUMMARY" --annotate \
+          --main-ref "$MAIN_REF" --coverage-threshold "$THRESHOLD"
+        cp "$run_file" "$report/"
+        echo "run-file=$run_file" >> "$GITHUB_OUTPUT"
+        echo "report-dir=$report" >> "$GITHUB_OUTPUT"
+
+    - name: Upload report and graph data
+      uses: actions/upload-artifact@v7
+      with:
+        name: flaky-report-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ steps.record.outputs.report-dir }}
+
+    - name: Save run to history branch
+      if: >
+        inputs.publish == 'true' || (inputs.publish == 'auto' && (github.event_name != 'pull_request'
+        || github.event.pull_request.head.repo.full_name == github.repository))
+      shell: bash
+      env:
+        FLAKY_GIT_TOKEN: ${{ inputs.token }}
+        RUN_FILE: ${{ steps.record.outputs.run-file }}
+        BRANCH: ${{ inputs.history-branch }}
+        MAIN_REF: ${{ inputs.main-ref }}
+        THRESHOLD: ${{ inputs.coverage-threshold }}
+        WITH_REPORTS: ${{ github.event_name == 'push' && github.ref == inputs.main-ref }}
+      run: |
+        args=(--branch "$BRANCH" --main-ref "$MAIN_REF" --coverage-threshold "$THRESHOLD")
+        if [ "$WITH_REPORTS" = "true" ]; then args+=(--with-reports); fi
+        "$RUNNER_TEMP/flaky-detector/bin/flaky-detector" publish "$RUN_FILE" "${args[@]}"

@@ -1,0 +1,58 @@
+name: Tests and flaky test detection
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write  # the detector pushes run records to the flaky-data branch
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # diff coverage needs the base commit
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e ".[test]"
+
+      - name: Run tests
+        id: tests
+        continue-on-error: true
+        run: >
+          pytest -v
+          --junitxml=.flaky/junit.xml
+          --cov --cov-context=test --cov-report=term
+          --cov-report=json:.flaky/coverage.json
+
+      # A test that fails and then passes on the same commit is the clearest sign of a flake.
+      - name: Retry failed tests
+        id: retry
+        if: steps.tests.outcome == 'failure'
+        continue-on-error: true
+        run: pytest -v --last-failed --no-cov --junitxml=.flaky/junit-retry-1.xml
+
+      - name: Detect flaky tests
+        if: always() && steps.tests.outcome != 'skipped'
+        uses: ./
+        with:
+          junit: .flaky/junit.xml
+          retry-junit: .flaky/junit-retry-*.xml
+          coverage: .flaky/coverage.json
+          python: python
+
+      - name: Fail on real test failures
+        if: steps.tests.outcome == 'failure' && steps.retry.outcome != 'success'
+        run: |
+          echo "::error::Tests failed and still failed on retry. See the job summary for details."
+          exit 1
