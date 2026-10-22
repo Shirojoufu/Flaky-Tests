@@ -10,19 +10,23 @@ Runs in GitHub Actions on every pull request to `main` and every merge to `main`
 
 Each run writes a Markdown job summary with trend charts, plus CSV/JSON graph data for dashboards.
 
+[Flaky Test Lab](https://github.com/Shirojoufu/Flaky-Test-Lab) is a test bed for the detector. It has races, connection timeouts, startup races, node crashes, disk errors, async ordering bugs, random-data edge cases, timing assertions and order dependence, plus real regressions as controls. Its simulator replays 30 CI runs and checks every verdict against ground truth; at the time of writing, all 19 tests are classified correctly.
+
 ## How "the code didn't change" is decided
 
-Each test in each run gets a **fingerprint**: a hash of everything that test depends on:
+A test depends on:
 
 - the test file and any `conftest.py` above it
 - every source file the test actually executed (from per-test coverage, `--cov-context=test`)
 - dependency manifests and lockfiles (`pyproject.toml`, `requirements*.txt`, `uv.lock`, …)
 
+Each run records the hash of every measured file and which files each test executed. At analysis time, each test is **fingerprinted over every file it executed in any run**. A failing run often executes extra code, such as an error handler or the code path that broke, and it is still compared with passing runs of the same code. A change to any of those files still counts as new code.
+
 If the same test passes and fails with the same fingerprint, it is flaky. Changes to unrelated files don't change the fingerprint, so evidence builds up across many PRs and merges, not just reruns of the same commit. When the workflow retries a failed test and the retry passes, that also counts.
 
 When a test has no per-test coverage data, its fingerprint falls back to the whole git tree, so any change at all counts as new code. `--fingerprint-mode tree` forces that strict mode for every test.
 
-Limitation: a test depends only on the files it *executed*. If it reads a file that coverage doesn't measure (a data file, an un-measured package), changes to that file won't change its fingerprint. Add such files with `--fingerprint-extra`.
+Limitation: only files coverage measures are tracked. If a test reads a data file or runs code in a subprocess, add those files with the `fingerprint-extra` input (`--fingerprint-extra` on the command line).
 
 ## Severity
 
@@ -83,7 +87,9 @@ In each run, the action:
 
 1. Loads past runs from the `flaky-data` branch, records this run, and analyses the full history.
 2. Writes the report to the job summary, adds `::warning` annotations for flaky failures, and uploads the report and graph data as an artifact.
-3. Appends the run record to `flaky-data`. On pushes to `main` it also refreshes `reports/` there, so the latest graph data is always at a stable URL. Runs from fork PRs are reported but not recorded, because their token is read-only.
+3. Appends the run record to `flaky-data`. On pushes to `main` it also refreshes `reports/` there, so the latest graph data is always at a stable URL. Runs from fork PRs and Dependabot PRs are reported but not recorded, because their token is read-only.
+
+To keep the test job read-only, upload `.flaky/` as an artifact and run the action in a separate job with `contents: write`. [DORA-Metrics](https://github.com/Shirojoufu/DORA-Metrics/blob/main/.github/workflows/ci.yml) is set up this way.
 
 With the retry and the final step above, the job fails only when a test still fails after its retry. A test that passed on retry is reported as flaky but doesn't block the PR.
 
