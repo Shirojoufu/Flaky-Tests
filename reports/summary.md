@@ -1,10 +1,10 @@
 # Flaky test report
 
-**Runs analysed:** 9 (9 on main, 0 from pull requests) · **Tests tracked:** 35 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0 · **Fixed flakes:** 0
+**Runs analysed:** 11 (11 on main, 0 from pull requests) · **Tests tracked:** 35 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0 · **Fixed flakes:** 0
 
 ## This run
 
-main · commit `ec75748` · Date fixes from the last flaky run, and report possibly fixed flakes
+main · commit `8016ecd` · Document versioned pinning and the release process
 
 All 35 tests passed.
 
@@ -16,26 +16,26 @@ No flaky tests detected: no test has both passed and failed on the same code.
 
 ```mermaid
 xychart-beta
-    title "First-attempt pass rate (%), last 9 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    title "First-attempt pass rate (%), last 11 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     y-axis "Pass rate" 0 --> 100
-    line [96.15, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+    line [96.15, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Flaky failures per run, last 9 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    title "Flaky failures per run, last 11 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     y-axis "Flaky failures" 0 --> 1
-    bar [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Line coverage (%), last 9 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    title "Line coverage (%), last 11 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     y-axis "Coverage" 0 --> 100
-    line [88.65, 92.11, 92.13, 92.54, 92.26, 92.26, 92.3, 92.0, 91.96]
+    line [88.65, 92.11, 92.13, 92.54, 92.26, 92.26, 92.3, 92.0, 91.96, 91.96, 91.96]
 ```
 
 <details><summary>Run key</summary>
@@ -51,18 +51,14 @@ xychart-beta
 | 7 | `4d866f2` | main | 2026-10-22 |
 | 8 | `d873311` | main | 2026-10-22 |
 | 9 | `ec75748` | main | 2026-10-22 |
+| 10 | `ec75748` | main (workflow_dispatch) | 2026-10-22 |
+| 11 | `8016ecd` | main | 2026-10-22 |
 
 </details>
 
 ## Coverage
 
-**Total:** 91.96% of 1020 statements (-0.04 vs main at `d873311`) · **This change:** 91.67% of 12 changed statements covered
-
-### Untested lines in this change
-
-| File | Uncovered changed lines |
-| --- | --- |
-| `flaky_detector/report.py` | 170 |
+**Total:** 91.96% of 1020 statements (+0.00 vs main at `ec75748`)
 
 ### Files no test executes
 

@@ -8,3 +8,5 @@ index,sha,timestamp,event,ref,pr_number,merged_pr,run_id,run_attempt,environment
 6,4d866f2c8023d510787af5defd2fac8305f5b800,2026-10-22T20:59:06Z,push,refs/heads/main,,,39853441733,1,,True,29,29,0,0,0,0,100.0,92.3,100.0
 7,d873311116041613e87deb162a88dd571c2423de,2026-10-22T21:24:12Z,push,refs/heads/main,,,39856922904,1,,True,34,34,0,0,0,0,100.0,92.0,88.89
 8,ec75748fc1a393599e37fe60872e412d57e89ae8,2026-10-22T21:39:40Z,push,refs/heads/main,,,39859003746,1,,True,35,35,0,0,0,0,100.0,91.96,91.67
+9,ec75748fc1a393599e37fe60872e412d57e89ae8,2026-10-22T21:43:34Z,workflow_dispatch,refs/heads/main,,,39859499821,1,,True,35,35,0,0,0,0,100.0,91.96,
+10,8016ecdda2578bb421fda4b4dd014f7acba27ae8,2026-10-22T21:48:25Z,push,refs/heads/main,,,39860147093,1,,True,35,35,0,0,0,0,100.0,91.96,
