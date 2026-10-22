@@ -1,0 +1,65 @@
+[
+ {
+  "key": "tests.test_history.test_publish_creates_branch_then_appends_from_another_clone",
+  "status": "failing",
+  "severity": null,
+  "observations": 2,
+  "failures": 2,
+  "flaky_observations": 0,
+  "flaky_failures": 0,
+  "failure_rate": 0.0,
+  "flips": 0,
+  "retry_flakes": 0,
+  "main_failures": 0,
+  "active": false,
+  "flaky_fingerprints": [],
+  "first_flaky_failure": null,
+  "introduced_in": null,
+  "previous_code_seen_in": null,
+  "failing_since": {
+   "index": 0,
+   "sha": "c9eafd7fa55a342e5c69d29e7f3f3c03112fadb5",
+   "timestamp": "2026-10-22T17:46:08Z",
+   "event": "push",
+   "ref": "refs/heads/main",
+   "pr_number": null,
+   "merged_pr": null,
+   "run_id": "39825518881",
+   "run_attempt": 1
+  },
+  "last_failure": {
+   "index": 0,
+   "sha": "c9eafd7fa55a342e5c69d29e7f3f3c03112fadb5",
+   "timestamp": "2026-10-22T17:46:08Z",
+   "event": "push",
+   "ref": "refs/heads/main",
+   "pr_number": null,
+   "merged_pr": null,
+   "run_id": "39825518881",
+   "run_attempt": 1
+  },
+  "last_seen": {
+   "index": 0,
+   "sha": "c9eafd7fa55a342e5c69d29e7f3f3c03112fadb5",
+   "timestamp": "2026-10-22T17:46:08Z",
+   "event": "push",
+   "ref": "refs/heads/main",
+   "pr_number": null,
+   "merged_pr": null,
+   "run_id": "39825518881",
+   "run_attempt": 1
+  },
+  "timeline": [
+   [
+    0,
+    0,
+    "failed"
+   ],
+   [
+    0,
+    1,
+    "failed"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,74 @@
+{
+ "available": true,
+ "run_index": 0,
+ "sha": "c9eafd7fa55a342e5c69d29e7f3f3c03112fadb5",
+ "percent": 88.65,
+ "statements": 925,
+ "covered": 820,
+ "threshold": 80.0,
+ "baseline": null,
+ "below_threshold": [
+  {
+   "file": "flaky_detector/__main__.py",
+   "percent": 0.0,
+   "statements": 2,
+   "covered": 0,
+   "missing": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     3
+    ]
+   ]
+  },
+  {
+   "file": "flaky_detector/history.py",
+   "percent": 57.89,
+   "statements": 76,
+   "covered": 44,
+   "missing": [
+    [
+     30,
+     41
+    ],
+    [
+     72,
+     72
+    ],
+    [
+     76,
+     83
+    ],
+    [
+     85,
+     86
+    ],
+    [
+     88,
+     92
+    ],
+    [
+     97,
+     99
+    ],
+    [
+     105,
+     105
+    ]
+   ]
+  }
+ ],
+ "never_executed": [
+  "flaky_detector/__main__.py"
+ ],
+ "diff": {
+  "changed_statements": 0,
+  "covered": 0,
+  "files": {},
+  "percent": null,
+  "unmeasured_files": []
+ }
+}
